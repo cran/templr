@@ -39,7 +39,7 @@ In this secondary process, you can read what X is called using 'ask_X', and when
 just call 'tell_Y' to give it.
 }
 \examples{
-\dontrun{ ### Assumes you can use two independant R sessions
+\dontrun{ ### Assumes you can use two independent R sessions
 ## In main R session
   ask_Y(x=123)
 ## In another R session

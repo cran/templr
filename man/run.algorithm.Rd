@@ -8,18 +8,22 @@ run.algorithm(
   algorithm_file,
   objective_function,
   input,
+  output = NULL,
   options = NULL,
   work_dir = ".",
   trace = function(...) cat(paste0(..., "\\n")),
-  silent = FALSE
+  silent = FALSE,
+  save_data = TRUE
 )
 }
 \arguments{
-\item{algorithm_file}{tempalted algorithm file}
+\item{algorithm_file}{templated algorithm file}
 
 \item{objective_function}{function to apply algorithm on}
 
 \item{input}{list of input arguments of function (eg. list(x1=list(min=0,max=1),x2=list(min=10,max=20)))}
+
+\item{output}{list of output names}
 
 \item{options}{algorithm options to overload default ones}
 
@@ -28,6 +32,8 @@ run.algorithm(
 \item{trace}{display running info}
 
 \item{silent}{quietness}
+
+\item{save_data}{enable (by default) saving of data (in .Rds) along algorithm iterations.}
 }
 \value{
 algorithm result (and algorithm object & files as attributes)

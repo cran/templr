@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{ ### Assumes you can use two independant R sessions
+#' \dontrun{ ### Assumes you can use two independent R sessions
 #' ## In main R session
 #'   ask_Y(x=123)
 #' ## In another R session
@@ -82,7 +82,7 @@ ask_Y <- function(x,
 #' @export
 #'
 #' @examples 
-#' \dontrun{ ### Assumes you can use two independant R sessions
+#' \dontrun{ ### Assumes you can use two independent R sessions
 #' ## In main R session
 #'   ask_dY(x=123)
 #' ## In another R session
@@ -168,7 +168,7 @@ ask_dY <- function(x, dX=0.001,
 #' @export
 #'
 #' @examples 
-#' \dontrun{ ### Assumes you can use two independant R sessions
+#' \dontrun{ ### Assumes you can use two independent R sessions
 #' ## In main R session
 #'   ask_Y(x=123)
 #' ## In another R session
@@ -217,7 +217,7 @@ ask_X <- function(id=0,
 #' @export
 #'
 #' @examples 
-#' \dontrun{ ### Assumes you can use two independant R sessions
+#' \dontrun{ ### Assumes you can use two independent R sessions
 #' ## In main R session
 #'   ask_dY(x=123)
 #' ## In another R session
@@ -267,7 +267,7 @@ ask_dX <- function(id=0, dX.tmp="dX.todo", tmp_path=file.path(tempdir(),"..","as
 #' @export
 #'
 #' @examples 
-#' \dontrun{ ### Assumes you can use two independant R sessions
+#' \dontrun{ ### Assumes you can use two independent R sessions
 #' ## In main R session
 #'   ask_Y(x=123)
 #' ## In another R session
@@ -307,7 +307,7 @@ tell_Y <- function(y,
 #' @export
 #'
 #' @examples 
-#' \dontrun{ ### Assumes you can use two independant R sessions
+#' \dontrun{ ### Assumes you can use two independent R sessions
 #' ## In main R session
 #'   ask_dY(x=123)
 #' ## In another R session

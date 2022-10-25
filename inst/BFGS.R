@@ -45,6 +45,7 @@ getInitialDesign <- function(algorithm, input, output) {
     Sys.sleep(.1)
     
     Xn = ask_X(id=algorithm$id)
+    algorithm$s = nrow(Xn)
     print(Xn)
     names(Xn) <- names(algorithm$input)
     return(Xn)
@@ -54,7 +55,7 @@ getNextDesign <- function(algorithm, X, Y) {
     if ((algorithm$maxit*(algorithm$d+4)) < algorithm$i) return(NULL) # almost equiv. to maxit coutning gradients
     algorithm$i = algorithm$i + 1
     
-    y = Y[length(Y),]
+    y = Y[(nrow(Y)-algorithm$s+1):nrow(Y),]
 
     tell_Y(id=algorithm$id,y)
 
@@ -63,11 +64,16 @@ getNextDesign <- function(algorithm, X, Y) {
     Sys.sleep(.1)
 
     Xn = ask_X(id=algorithm$id)
+    algorithm$s = nrow(Xn)
     names(Xn) <- names(algorithm$input)
     return(Xn)
 }
 
 displayResults <- function(algorithm, X, Y) {
+    displayResultsTmp(algorithm, X[-nrow(X),], Y[-nrow(Y),]) # remove last NaN
+}
+
+displayResultsTmp <- function(algorithm, X, Y) {
     algorithm$files <- "plot.png"
     png(file = algorithm$files, height = 600, width = 600)
     red=(Y-min(Y))/(max(Y)-min(Y))

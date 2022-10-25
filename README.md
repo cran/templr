@@ -6,3 +6,4 @@ You can install it using:
 install.packages('remotes')
 remotes::install_github("MASCOTNUM/templr")
 ```
+_(No need for any compiler, whatever OS)_
