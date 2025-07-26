@@ -236,6 +236,8 @@ run.algorithm <- function(algorithm_file,
     for (o in names(options)) def_options[[o]]=options[[o]]
     options=def_options
     
+    if (save_data) saveRDS(options,file.path(".",paste0("options.Rds")))
+    
     trace("# Instanciating algorithm...")
     t0 = Sys.time() # time stamp to evaluate time between iterations
     try(instance <- algorithm$envir$new(options),silent = silent)
@@ -246,7 +248,6 @@ run.algorithm <- function(algorithm_file,
         trace(traceback())
         stop("Error while instanciating")
     }
-    if (save_data) saveRDS(instance,file.path(".",paste0("algorithm.Rds")))
     #return(list(new=geterrmessage(),init="",next="",display=""))
     
     trace("# Initializing algorithm...")
@@ -260,11 +261,11 @@ run.algorithm <- function(algorithm_file,
         trace(traceback())
         stop("Error while computing getInitialDesign")
     }
-    if (save_data) saveRDS(instance,file.path(".",paste0("algorithm0.Rds")))
+    if (save_data) saveRDS(instance,file.path(".",paste0("algorithm_0.Rds")))
     
     if(!is.matrix(X0)) X0=as.matrix(X0,ncol=length(input),byrow = T)
     colnames(X0) <- names(input)
-    if (save_data) saveRDS(X0,file.path(".",paste0("X0.Rds")))
+    if (save_data) saveRDS(X0,file.path(".",paste0("X_0.Rds")))
     if (!silent) trace(capture.output(print(X0)))
 
     F = function(X) {
@@ -279,7 +280,7 @@ run.algorithm <- function(algorithm_file,
     Y0 = F(X0)
     t1 = Sys.time()-t0
     trace(paste0("                      ... in ",format(t1,digits=3)," s"))
-    if (save_data) saveRDS(Y0,file.path(".",paste0("Y0.Rds")))
+    if (save_data) saveRDS(Y0,file.path(".",paste0("Y_0.Rds")))
     if (!silent) trace(capture.output(print(Y0)))
 
     Xi = X0
@@ -297,7 +298,7 @@ run.algorithm <- function(algorithm_file,
         t1 = Sys.time()-t0
         trace(paste0("                      ... in ",format(t1,digits=3)," s"))
         trace(restmp)
-        if (save_data) if(!is.null(restmp)) saveRDS(restmp,file.path(".",paste0("restmp",i,".Rds")))
+        if (save_data) if(!is.null(restmp)) saveRDS(restmp,file.path(".",paste0("resultstmp_",i,".Rds")))
         
         i = i + 1
         trace(paste0("# Iterating algorithm... ",i))
@@ -309,7 +310,7 @@ run.algorithm <- function(algorithm_file,
         #         , error=function(e) stop("Error while computing getNextDesign:\n",err,"\n with data:\n",paste.XY(Xi,Yi)))
         # }, error=function(e) {setwd(prev.path); print(sys.calls())})
         t0 = Sys.time() # time stamp to evaluate time between iterations
-        tryCatch(Xj <- algorithm$envir$getNextDesign(instance,Xi,Yi),error=function(e) err <<- e)
+        tryCatch(Xj <- algorithm$envir$getNextDesign(instance,Xi,Yi), error=function(e) {err <<- e; e})
         t1 = Sys.time()-t0
         trace(paste0("                      ... in ",format(t1,digits=3)," s"))
         if(!is.null(err)) {
@@ -318,9 +319,9 @@ run.algorithm <- function(algorithm_file,
         }
         
         #colnames(Xj)<-names(input)
-        if (save_data) saveRDS(Xi,file.path(".",paste0("X",i,".Rds")))
-        if (save_data) saveRDS(Yi,file.path(".",paste0("Y",i,".Rds")))
-        if (save_data) saveRDS(instance,file.path(".",paste0("algorithm",i,".Rds")))
+        if (save_data) saveRDS(Xi,file.path(".",paste0("X_",i,".Rds")))
+        if (save_data) saveRDS(Yi,file.path(".",paste0("Y_",i,".Rds")))
+        if (save_data) saveRDS(instance,file.path(".",paste0("algorithm_",i,".Rds")))
 
         if (is.null(Xj) | any(is.na(Xj)) | any(is.nan(Xj)) | length(Xj) == 0) {
             finished = TRUE
@@ -350,7 +351,9 @@ run.algorithm <- function(algorithm_file,
         stop("Error while computing displayResults\n",paste.XY(Xi,Yi))
     }
     trace(res)
-    if (save_data) saveRDS(res,file.path(".",paste0("res.Rds")))
+    if (save_data) saveRDS(res,file.path(".",paste0("results.Rds")))
+    
+    if (save_data) saveRDS(instance,file.path(".",paste0("algorithm.Rds")))
     
     # if (!is.null(instance$files)) {
     #     for (f in instance$files){
