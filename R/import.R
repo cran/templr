@@ -29,7 +29,7 @@ import = function(...,
                     if (isTRUE(grep(":",l)==1)) { # GitHub or ...
                         src=gsub(":.*","",l)
                         n=gsub(".*/","",l)
-                        path=gsub(".*:","",gsub("/[a-zA-Z0-9]*","",l))
+                        path=gsub(".*:","",gsub("/.*","",l))
                     } else { # CRAN
                         src=NULL
                         n=l

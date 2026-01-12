@@ -46,7 +46,7 @@ parse.algorithm = function(file) {
             requires=strsplit(sub("#require:\\s*","",lines[i]),"[;, ]")[[1]]
         } else if (isTRUE(strtrim(lines[i],9)=="#options:")) {
             str_repl = gsub(perl = T,"(,)(?=(?:[^']|'[^']*')*$)",';',sub("#options:\\s*","",lines[i]))
-            options_str=strsplit(str_repl,"[;,]")
+            options_str=strsplit(str_repl,"[;]")
             for (os in options_str[[1]]){
                 ko <- gsub(" ","",fixed=T,unlist(strsplit(unlist(os),"=")))
                 options[[ko[1]]]=gsub("'","",ko[2])
@@ -56,7 +56,7 @@ parse.algorithm = function(file) {
             }
         } else if (isTRUE(strtrim(lines[i],14)=="#options.help:")) {
             str_repl = gsub(perl = T,"(,)(?=(?:[^']|'[^']*')*$)",';',sub("#options.help:\\s*","",lines[i]))
-            options_str=strsplit(str_repl,"[;,]")
+            options_str=strsplit(str_repl,"[;]")
             for (os in options_str[[1]]){
                 ko <- unlist(strsplit(unlist(os),"="))
                 options.help[[ko[1]]]=gsub("'","",ko[2])
@@ -126,7 +126,7 @@ read.algorithm = function(file,info="help"){
             requires=strsplit(sub("#require:\\s*","",lines[i]),"[;, ]")[[1]]
         } else if (isTRUE(strtrim(lines[i],9)=="#options:")) {
             str_repl = gsub(perl = T,"(,)(?=(?:[^']|'[^']*')*$)",';',sub("#options:\\s*","",lines[i]))
-            options_str=strsplit(str_repl,"[;,]")
+            options_str=strsplit(str_repl,"[;]")
             for (os in options_str[[1]]){
                 ko <- unlist(strsplit(unlist(os),"="))
                 options[[ko[1]]]=gsub("'","",ko[2])
@@ -134,7 +134,7 @@ read.algorithm = function(file,info="help"){
             }
         } else if (isTRUE(strtrim(lines[i],14)=="#options.help:")) {
             str_repl = gsub(perl = T,"(,)(?=(?:[^']|'[^']*')*$)",';',sub("#options.help:\\s*","",lines[i]))
-            options_str=strsplit(str_repl,"[;,]")
+            options_str=strsplit(str_repl,"[;]")
             for (os in options_str[[1]]){
                 ko <- unlist(strsplit(unlist(os),"="))
                 options.help[[ko[1]]]=gsub("'","",ko[2])
