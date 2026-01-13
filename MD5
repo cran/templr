@@ -1,9 +1,9 @@
-80608dce256b8feab532ef93d291812e *DESCRIPTION
+18d938a687d10dc25c3f9aa97f171f3e *DESCRIPTION
 cea8a981ae8d34d28c334c4b2f1a84f2 *NAMESPACE
 0653656ed4a602cc2168d109922cc275 *R/algorithm.R
 74efd7046126d373b8b8bfaa33208113 *R/asktell.R
 f36795eacd8a50afce1057be726a538a *R/bounds.R
-230294370eeafb308cdaba0a64868a0f *R/import.R
+d8c218e329b0fe9cb263404da006d45b *R/import.R
 f80c4ba13715b37480f6ad3ed0902be9 *README.md
 f26a86e933e0fb286909312583206ba2 *inst/BFGS.R
 bdd71eeeaeba99c00fb70fa42ad0d577 *inst/Brent.R
@@ -25,3 +25,4 @@ cecd2ecb342d851acbeb9eaabde6ef51 *man/to01.Rd
 2606b47ddc290347c33e7c838bc82580 *tests/testthat/test-algorithm-BFGS.R
 47b82e995aecf51fb76831fe4b934789 *tests/testthat/test-algorithm-Brent.R
 795d25923b3885ee0ddc775e308cc374 *tests/testthat/test-asktell.R
+9299cd3c28fe2c662342861a41b46351 *tests/testthat/test-import.R
