@@ -1,4 +1,7 @@
 library(testthat)
+skip_on_cran()
+skip_if_offline()
+
 BFGS.R = system.file("BFGS.R", package="templr")
 
 # test read

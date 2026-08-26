@@ -36,7 +36,7 @@ ask_dY(
 
 \item{sleep_init}{initial delay before checking X.tmp and Y.tmp  (default: 0 sec.)}
 
-\item{timeout}{maximum delay before breaking loop if X.tmp or Y.tmp doesn't appear (default: 36000 sec. = 10 min.) .}
+\item{timeout}{maximum delay before breaking loop if X.tmp or Y.tmp doesn't appear (default: 360000 sec. = 100 h.) .}
 
 \item{trace}{function to display asktell loop status (default : 'cat')}
 

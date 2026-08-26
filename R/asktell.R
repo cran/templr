@@ -22,16 +22,18 @@ ask_Y <- function(x,
                   sleep_step=0.1, sleep_init=0, timeout=360000,
                   trace=function(...) cat(paste0(...,"\n")), clean = TRUE, force_cleanup=FALSE) {
 
+    if (is.null(x)) stop("x must not be NULL")
+
     if (!is.null(tmp_path) && !dir.exists(tmp_path))
         if (!dir.create(tmp_path,showWarnings = FALSE,recursive = TRUE))
             stop(paste0("Could not use tmp_path directory: ",tmp_path))
-    
+
     if (file.exists(file = Y_file(id,Y.tmp,tmp_path))) {
         if (!force_cleanup)
             stop(paste0("This id:'",id,"' is already in use. Please choose another one, or use 'force_cleanup=T'"))
         else {
             last=read.io(Y_file(id,Y.tmp,tmp_path),trace = trace)
-            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:",print(last)))
+            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:\n",paste0(collapse="\n",utils::capture.output(print(last)))))
         }
     }
     
@@ -42,7 +44,7 @@ ask_Y <- function(x,
             stop(paste0("This id:'",id,"' is already in use. Please choose another one, or use 'force_cleanup=T'"))
         else {
             last=read.io(X_file(id,X.tmp,tmp_path),trace = trace)
-            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:",print(last)))
+            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:\n",paste0(collapse="\n",utils::capture.output(print(last)))))
         }
     }
     
@@ -94,17 +96,19 @@ ask_dY <- function(x, dX=0.001,
                    id=0, dX.tmp="dX.todo", dY.tmp="dY.done", tmp_path=file.path(tempdir(),"..","asktell.tmp"), 
                    sleep_step=0.1, sleep_init=0,  timeout=360000,
                    trace=function(...) cat(paste0(...,"\n")),clean = TRUE, force_cleanup=FALSE) {
-    
+
+    if (is.null(x)) stop("x must not be NULL")
+
     if (!is.null(tmp_path) && !dir.exists(tmp_path))
         if (!dir.create(tmp_path,showWarnings = FALSE,recursive = TRUE))
             stop(paste0("Could not use tmp_path directory: ",tmp_path))
-    
+
     if (file.exists(file = dY_file(id,dY.tmp,tmp_path))) {
         if (!force_cleanup)
             stop(paste0("This id:'",id,"' is already in use. Please choose another one, or use 'force_cleanup=T'"))
         else {
             last=read.io(dY_file(id,dY.tmp,tmp_path),trace = trace)
-            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:",print(last)))
+            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:\n",paste0(collapse="\n",utils::capture.output(print(last)))))
         }
     }
     
@@ -125,7 +129,7 @@ ask_dY <- function(x, dX=0.001,
             stop(paste0("This id:'",id,"' is already in use. Please choose another one, or use 'force_cleanup=T'"))
         else {
             last=read.io(dX_file(id,dX.tmp,tmp_path),trace = trace)
-            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:",print(last)))
+            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:\n",paste0(collapse="\n",utils::capture.output(print(last)))))
         }
     }
     
@@ -278,17 +282,19 @@ ask_dX <- function(id=0, dX.tmp="dX.todo", tmp_path=file.path(tempdir(),"..","as
 tell_Y <- function(y, 
                    id=0, Y.tmp="Y.done", tmp_path=file.path(tempdir(),"..","asktell.tmp"), 
                    trace=function(...) cat(paste0(...,"\n")), force_cleanup=FALSE) {
-    
+
+    if (is.null(y)) stop("y must not be NULL")
+
     if (!is.null(tmp_path) && !dir.exists(tmp_path))
         if (!dir.create(tmp_path,showWarnings = FALSE,recursive = TRUE))
             stop(paste0("Could not use tmp_path directory: ",tmp_path))
-    
+
     if (file.exists(file = Y_file(id,Y.tmp,tmp_path))) {
         if (!force_cleanup)
             stop(paste0("This id:'",id,"' is already in use. Please choose another one, or use 'force_cleanup=T'"))
         else {
             last=read.io(Y_file(id,Y.tmp,tmp_path),trace = trace)
-            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:",print(last)))
+            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:\n",paste0(collapse="\n",utils::capture.output(print(last)))))
         }
     }
     
@@ -318,17 +324,19 @@ tell_Y <- function(y,
 tell_dY <- function(dy, 
                     id=0, dY.tmp="dY.done", tmp_path=file.path(tempdir(),"..","asktell.tmp"), 
                     trace=function(...) cat(paste0(...,"\n")), force_cleanup=FALSE) {
-    
+
+    if (is.null(dy)) stop("dy must not be NULL")
+
     if (!is.null(tmp_path) && !dir.exists(tmp_path))
         if (!dir.create(tmp_path,showWarnings = FALSE,recursive = TRUE))
             stop(paste0("Could not use tmp_path directory: ",tmp_path))
-    
+
     if (file.exists(file = dY_file(id,dY.tmp,tmp_path))) {
         if (!force_cleanup)
             stop(paste0("This id:'",id,"' is already in use. Please choose another one, or use 'force_cleanup=T'"))
         else {
             last=read.io(dY_file(id,dY.tmp,tmp_path),trace = trace)
-            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:",print(last)))
+            warning(paste0("This id:'",id,"' is already in use. Cleanup this data:\n",paste0(collapse="\n",utils::capture.output(print(last)))))
         }
     }
     
@@ -337,42 +345,33 @@ tell_dY <- function(dy,
     write.io(dy,file = dY_file(id,dY.tmp,tmp_path),trace = trace)
 }
 
-# test: x=123;write.io(x,"x.dat");read.io("x.dat")
-# test: x=matrix(c(123,456),ncol=2);write.io(x,"x.dat");read.io("x.dat")
-# test: x=matrix(c(123,456,789,101),ncol=2);write.io(x,"x.dat");read.io("x.dat")
-write.io <- function(data,file, 
+write.io <- function(data,file,
                      trace=function(...) cat(paste0(...,"\n"))) {
     i=0
     path=dirname(file); if (!dir.exists(path)) dir.create(path)
     while(file.exists(file) & i<100) {
         Sys.sleep(0.05); i=i+1; if (is.function(trace)) trace("\b ")
     }
-    
+
     if (i>=100) stop("file ",file, " already exists !")
-    
+
     if (is.function(trace)) trace("\b>")
-    
+
     saveRDS(data,file=file)
-    # utils::write.table(data,file=file,row.names=FALSE,header=TRUE)
 }
 
-read.io <- function(file,clean=TRUE, 
+read.io <- function(file,clean=TRUE,
                     trace=function(...) cat(paste0(...,"\n"))) {
     t = NULL
     i=0
-    try(t <- readRDS(file)
-        #as.matrix(utils::read.table(file=file,header=TRUE))
-        ,silent=TRUE)
+    try(t <- readRDS(file),silent=TRUE)
     while(is.null(t) & i<10) {
         Sys.sleep(0.05)
         i=i+1
         if (is.function(trace)) trace("\b ")
-        try(t <-  readRDS(file)
-            #as.matrix(utils::read.table(file=file,header=TRUE))
-            ,silent=TRUE)
+        try(t <-  readRDS(file),silent=TRUE)
     }
     if (is.null(t) & i<10 & is.function(trace)) trace(":)")
-    #t <- as.matrix(utils::read.table(file=file,header=TRUE))
     if (clean) while(file.exists(file)) {
         file.remove(file)
         if (is.function(trace)) trace("\b-")
@@ -387,8 +386,7 @@ X_file <- function(id,X.tmp,tmp_path) {
         X.tmp = file.path(tmp_path,X.tmp)
     }
     X_file = paste(sep="_",X.tmp,id)
-    #if(isTRUE(.trace)) print(X_file)
-    
+
     return(X_file)
 }
 
@@ -406,8 +404,7 @@ Y_file <- function(id,Y.tmp,tmp_path) {
         Y.tmp = file.path(tmp_path,Y.tmp)
     }
     Y_file = paste(sep="_",Y.tmp,id)
-    #if(isTRUE(.trace)) print(Y_file)
-    
+
     return(Y_file)
 }
 

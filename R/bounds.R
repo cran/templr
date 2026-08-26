@@ -10,6 +10,10 @@
 #' from01(data.frame(x=matrix(runif(10))),list(x=list(min=10,max=20)))
 from01 = function(X, inp) {
     nX = names(X)
+    for (namei in nX) {
+        if (is.null(inp[[namei]]) || is.null(inp[[namei]]$min) || is.null(inp[[namei]]$max))
+            stop("inp must contain a 'min' and 'max' value for column '",namei,"'")
+    }
     for (i in 1:ncol(X)) {
         namei = nX[i]
         X[,i] = X[,i] * (inp[[ namei ]]$max[[1]]-inp[[ namei ]]$min[[1]]) + inp[[ namei ]]$min[[1]]
@@ -29,6 +33,10 @@ from01 = function(X, inp) {
 #' to01(10+10*data.frame(x=matrix(runif(10))),list(x=list(min=10,max=20)))
 to01 = function(X, inp) {
     nX = names(X)
+    for (namei in nX) {
+        if (is.null(inp[[namei]]) || is.null(inp[[namei]]$min) || is.null(inp[[namei]]$max))
+            stop("inp must contain a 'min' and 'max' value for column '",namei,"'")
+    }
     for (i in 1:ncol(X)) {
         namei = nX[i]
         X[,i] = (X[,i] - inp[[ namei ]]$min[[1]]) / (inp[[ namei ]]$max[[1]]-inp[[ namei ]]$min[[1]])
@@ -48,7 +56,10 @@ to01 = function(X, inp) {
 #' min_input(list(x1=list(min=0,max=1),x2=list(min=2,max=3)))
 min_input = function(inp){
     m=list()
-    for (xi in names(inp)) m[[xi]]=inp[[xi]]$min
+    for (xi in names(inp)) {
+        if (is.null(inp[[xi]]$min)) stop("inp must contain a 'min' value for '",xi,"'")
+        m[[xi]]=inp[[xi]]$min
+    }
     unlist(m)
 }
 
@@ -64,6 +75,9 @@ min_input = function(inp){
 #' max_input(list(x1=list(min=0,max=1),x2=list(min=2,max=3)))
 max_input = function(inp){
     m=list()
-    for (xi in names(inp)) m[[xi]]=inp[[xi]]$max
+    for (xi in names(inp)) {
+        if (is.null(inp[[xi]]$max)) stop("inp must contain a 'max' value for '",xi,"'")
+        m[[xi]]=inp[[xi]]$max
+    }
     unlist(m)
 }

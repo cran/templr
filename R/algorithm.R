@@ -8,6 +8,7 @@
 #' @examples
 #' parse.algorithm(system.file("Brent.R", package="templr"))
 parse.algorithm = function(file) {
+    if (!is.character(file) || length(file)!=1 || is.na(file) || nchar(file)==0) stop("file must be a non-empty character string")
     if (!file.exists(file)) stop("Cannot find Algorithm file ",file)
     lines=readLines(file)
     
@@ -50,7 +51,6 @@ parse.algorithm = function(file) {
             for (os in options_str[[1]]){
                 ko <- gsub(" ","",fixed=T,unlist(strsplit(unlist(os),"=")))
                 options[[ko[1]]]=gsub("'","",ko[2])
-                #print(paste0(ko[1],": ", ko[2]," -> ",gsub("(\\|)(.*)","",ko[2])))
                 options.default[[ko[1]]]=gsub("'","",gsub("(\\|)(.*)","",ko[2]))
                 options.help[[ko[1]]]="?"
             }
@@ -89,6 +89,8 @@ parse.algorithm = function(file) {
 #' @examples
 #' read.algorithm(system.file("Brent.R", package="templr"),"help")
 read.algorithm = function(file,info="help"){
+    if (!is.character(file) || length(file)!=1 || is.na(file) || nchar(file)==0) stop("file must be a non-empty character string")
+    if (!file.exists(file)) stop("Cannot find Algorithm file ",file)
     lines=readLines(file)
     
     name=unlist(strsplit(file,"/"))
@@ -107,7 +109,6 @@ read.algorithm = function(file,info="help"){
     options.help = list()
     
     for (i in 1:length(lines)) {
-        # print(paste0("> ",lines[i]))
         if (isTRUE(strtrim(lines[i],7)=="#title:")) {
             title=sub("#title:\\s*","",lines[i])
         } else if (isTRUE(strtrim(lines[i],6)=="#help:")){
@@ -128,7 +129,7 @@ read.algorithm = function(file,info="help"){
             str_repl = gsub(perl = T,"(,)(?=(?:[^']|'[^']*')*$)",';',sub("#options:\\s*","",lines[i]))
             options_str=strsplit(str_repl,"[;]")
             for (os in options_str[[1]]){
-                ko <- unlist(strsplit(unlist(os),"="))
+                ko <- gsub(" ","",fixed=T,unlist(strsplit(unlist(os),"=")))
                 options[[ko[1]]]=gsub("'","",ko[2])
                 options.default[[ko[1]]]=gsub("'","",gsub("(\\|)(.*)","",ko[2]))
             }
@@ -141,7 +142,7 @@ read.algorithm = function(file,info="help"){
             }
         }
     }
-    
+
     return(list(name=name,authors=authors,help=help,type=tolower(type),output=output,requires= gsub(" ","",requires),options=options,options.default=options.default,options.help=options.help)[[info]])
 }
 
@@ -183,6 +184,7 @@ paste.XY = function(X,Y) {
 #' @param output list of output names
 #' @param options algorithm options to overload default ones
 #' @param work_dir working directory to run algorithm. will store output files, images, ..
+#' @param overwrite if FALSE, stop with an error when work_dir already contains saved data (.Rds) from a previous run instead of silently overwriting it (default: TRUE)
 #' @param trace display running info
 #' @param silent quietness
 #' @param save_data enable (by default) saving of data (in .Rds) along algorithm iterations.
@@ -203,17 +205,19 @@ run.algorithm <- function(algorithm_file,
                           output=NULL,
                           options=NULL,
                           work_dir=".",
-                          trace=function(...) cat(paste0(...,"\n")),silent=FALSE,save_data=TRUE) { #},work_dir=paste0(tempdir(),floor(1000*runif(1)))) {
-    
+                          overwrite=TRUE,
+                          trace=function(...) cat(paste0(...,"\n")),silent=FALSE,save_data=TRUE) {
+
     if (!is.function(trace)) trace = function(...){}
-    
+    if (!is.function(objective_function)) stop("objective_function must be a function")
+    if (is.null(input) || length(input)==0) stop("input must be a non-empty list")
+
     if (is.null(output)) { # Use objective function name if no output arg provided
         output = utils::capture.output(print(match.call()))
         output = strsplit(output,"objective_function = ",fixed = T)[[1]][2]
         output = strsplit(output,",",fixed = T)[[1]][1]
     }
-    # algorithm_file = normalizePath(algorithm_file)
-    
+
     trace(paste0("# Parsing code... (in ",algorithm_file, " from ",getwd(),")"))
     algorithm = NULL
     try(algorithm <- parse.algorithm(algorithm_file),silent = silent)
@@ -226,10 +230,13 @@ run.algorithm <- function(algorithm_file,
     on.exit(setwd(prev.path))
     
     dir.create(work_dir, showWarnings = !silent)
+    if (save_data && !overwrite) {
+        existing_rds = list.files(work_dir, pattern="\\.Rds$")
+        if (length(existing_rds)>0)
+            stop(paste0("work_dir '",work_dir,"' already contains saved data (",paste0(collapse=", ",existing_rds),"). Use overwrite=TRUE to replace it, or choose another work_dir."))
+    }
     setwd(work_dir)
-    
-    # print.env(algorithm$envir)
-    
+
     instance = NULL
     def_options=algorithm$options
     for (o in names(def_options)) def_options[[o]]=gsub("\\|.*","",def_options[[o]])
@@ -244,12 +251,10 @@ run.algorithm <- function(algorithm_file,
     t1 = Sys.time()-t0
     trace(paste0("                      ... in ",format(t1,digits=3)," s"))
     if(is.null(instance)) {
-        setwd(prev.path)
         trace(traceback())
         stop("Error while instanciating")
     }
-    #return(list(new=geterrmessage(),init="",next="",display=""))
-    
+
     trace("# Initializing algorithm...")
     X0 = NULL
     t0 = Sys.time() # time stamp to evaluate time between iterations
@@ -257,7 +262,6 @@ run.algorithm <- function(algorithm_file,
     t1 = Sys.time()-t0
     trace(paste0("                      ... in ",format(t1,digits=3)," s"))
     if(is.null(X0)) {
-        setwd(prev.path)
         trace(traceback())
         stop("Error while computing getInitialDesign")
     }
@@ -274,7 +278,6 @@ run.algorithm <- function(algorithm_file,
         m
     }
     
-    #X0 = from01(X0,input) #X.min=Xmin.model(objective_function),X.max=Xmax.model(objective_function))
     trace("Compute objective function")
     t0 = Sys.time() # time stamp to evaluate time between iterations
     Y0 = F(X0)
@@ -304,21 +307,14 @@ run.algorithm <- function(algorithm_file,
         trace(paste0("# Iterating algorithm... ",i))
         err = NULL
         Xj = NULL
-        # withCallingHandlers({
-        #     tryCatch(
-        #         Xj <- algorithm$envir$getNextDesign(instance,Xi,Yi)
-        #         , error=function(e) stop("Error while computing getNextDesign:\n",err,"\n with data:\n",paste.XY(Xi,Yi)))
-        # }, error=function(e) {setwd(prev.path); print(sys.calls())})
         t0 = Sys.time() # time stamp to evaluate time between iterations
         tryCatch(Xj <- algorithm$envir$getNextDesign(instance,Xi,Yi), error=function(e) {err <<- e; e})
         t1 = Sys.time()-t0
         trace(paste0("                      ... in ",format(t1,digits=3)," s"))
         if(!is.null(err)) {
-            setwd(prev.path)
             stop("Error while computing getNextDesign:\n",err,"\n with data:\n",paste.XY(Xi,Yi))
         }
-        
-        #colnames(Xj)<-names(input)
+
         if (save_data) saveRDS(Xi,file.path(".",paste0("X_",i,".Rds")))
         if (save_data) saveRDS(Yi,file.path(".",paste0("Y_",i,".Rds")))
         if (save_data) saveRDS(instance,file.path(".",paste0("algorithm_",i,".Rds")))
@@ -326,7 +322,6 @@ run.algorithm <- function(algorithm_file,
         if (is.null(Xj) | any(is.na(Xj)) | any(is.nan(Xj)) | length(Xj) == 0) {
             finished = TRUE
         } else {
-            #Xj = from01(Xj,X.min=Xmin.model(objective_function),X.max=Xmax.model(objective_function))
             trace("Compute objective function")
             t0 = Sys.time() # time stamp to evaluate time between iterations
             Yj = F(Xj)
@@ -347,21 +342,15 @@ run.algorithm <- function(algorithm_file,
     t1 = Sys.time()-t0
     trace(paste0("                      ... in ",format(t1,digits=3)," s"))
     if(is.null(res)) {
-        setwd(prev.path)
         stop("Error while computing displayResults\n",paste.XY(Xi,Yi))
     }
     trace(res)
     if (save_data) saveRDS(res,file.path(".",paste0("results.Rds")))
-    
+
     if (save_data) saveRDS(instance,file.path(".",paste0("algorithm.Rds")))
-    
-    # if (!is.null(instance$files)) {
-    #     for (f in instance$files){
-    #         res = gsub(f,file.path(out.path,f),res)
-    #         file.rename(f,file.path(out.path,f))
-    #     }}
+
     setwd(prev.path)
-    
+
     attr(res,"files")<-instance$files
     attr(res,"algorithm")<-instance
     return(res)

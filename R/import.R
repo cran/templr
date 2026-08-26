@@ -3,6 +3,7 @@
 #' 
 #' @param ... dependencies/libraries/packages to load
 #' @param lib.loc use to setup a dedicated libPath directory to install packages
+#' @param force if TRUE, (re)install the package even if a version is already loadable, overwriting any previous install
 #' @param trace display info
 #'
 #' @importFrom remotes install_github
@@ -13,13 +14,28 @@
 #' if(interactive()){
 #'   import('VGAM')
 #' }
-import = function(..., 
+import = function(...,
                   lib.loc=NULL,
+                  force=FALSE,
                   trace=function(...) cat(paste0(...,"\n"))) {
     if (!is.function(trace)) trace = function(...){}
-    
+
+    # Checks whether the version of an already loadable package matches a requested tag/version
+    version_matches_tag = function(name, tag, lib.loc) {
+        if (is.null(tag)) return(TRUE) # no specific version requested: anything loadable is fine
+        v = tryCatch(as.character(utils::packageVersion(name, lib.loc = lib.loc)), error = function(e) NA)
+        if (is.na(v)) return(FALSE)
+        identical(v, gsub("^v","",tag))
+    }
+
+    if (is.character(lib.loc) && !dir.exists(lib.loc)) {
+        trace(paste0("Creating library directory ",lib.loc))
+        dir.create(lib.loc, recursive = TRUE)
+    }
+
     libs <- list(...)
     loaded = list() # for return
+    failed = character(0) # names of packages that failed to load, checked after the loop
     if (length(libs)>0) {
         if (!all(is.na(libs))) {
             for (l in stats::na.exclude(unlist(libs))) {
@@ -48,11 +64,18 @@ import = function(...,
 
                     
                     in_base = FALSE
-                    print(base::library(name,logical.return = TRUE,character.only = TRUE, quietly = TRUE))
-                    try(in_base <- base::library(name,logical.return = TRUE,character.only = TRUE, quietly = TRUE),silent = TRUE)
+                    if (!force) try(in_base <- base::library(name,logical.return = TRUE,character.only = TRUE, quietly = TRUE),silent = TRUE)
+                    if (isTRUE(in_base) && !version_matches_tag(name, tag, NULL)) {
+                        trace(paste0("  Installed version of ",name," does not match requested tag '",tag,"', reinstalling"))
+                        in_base = FALSE
+                    }
                     if (isFALSE(in_base)) {
                         in_loc = FALSE
-                        try(in_loc <- base::library(name,logical.return = TRUE,character.only = TRUE, quietly = TRUE,lib.loc = lib.loc) ,silent = TRUE)
+                        if (!force) try(in_loc <- base::library(name,logical.return = TRUE,character.only = TRUE, quietly = TRUE,lib.loc = lib.loc) ,silent = TRUE)
+                        if (isTRUE(in_loc) && !version_matches_tag(name, tag, lib.loc)) {
+                            trace(paste0("  Installed version of ",name," does not match requested tag '",tag,"', reinstalling"))
+                            in_loc = FALSE
+                        }
                         if (isFALSE(in_loc)) {
                             if (!is.null(src)) {
                                 trace(paste0("  Using 'remotes' to install ",name))
@@ -76,7 +99,8 @@ import = function(...,
                         if (isFALSE(try_load)) {
                             try(try_load <- base::library(name,logical.return = TRUE,character.only = TRUE, quietly = FALSE,lib.loc = lib.loc),silent = F)
                             loaded[[name]] <- FALSE
-                            stop(paste0("Cannot load package ",name,": ",paste0(collapse=", ",list.files(lib.loc))))
+                            failed <- c(failed, name)
+                            trace(paste0("  Cannot load package ",name,": ",paste0(collapse=", ",list.files(lib.loc))))
                         } else
                             loaded[[name]] <- TRUE
                     } else {
@@ -85,6 +109,8 @@ import = function(...,
                     }
                 }
             }
+            if (length(failed)>0)
+                stop(paste0("Cannot load package(s): ",paste0(collapse=", ",failed)))
             return(invisible(loaded))
         } else stop(paste0("No package to load"))
     } else stop(paste0("Empty list of package to load"))

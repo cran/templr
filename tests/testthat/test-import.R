@@ -89,6 +89,36 @@ test_that("import handles invalid package names gracefully", {
   expect_error(import("nonexistent_package_xyz123", lib.loc = temp_lib))
 })
 
+test_that("import with force=TRUE reinstalls an already loadable package", {
+  skip_on_cran()
+  skip_if_offline()
+
+  temp_lib <- tempfile("test_lib_force")
+  dir.create(temp_lib, recursive = TRUE)
+  on.exit(unlink(temp_lib, recursive = TRUE), add = TRUE)
+
+  # Pre-install directly into temp_lib (praise has no heavy dependencies, keeping this
+  # test fast), independently of whatever import()/library() may already know about it
+  # elsewhere on the machine running the test.
+  utils::install.packages("praise", lib = temp_lib, repos = "https://cloud.r-project.org", quiet = TRUE)
+  first_install_time <- file.info(file.path(temp_lib, "praise"))$mtime
+  expect_false(is.na(first_install_time))
+
+  Sys.sleep(1)
+
+  # Re-import with force=TRUE should reinstall into temp_lib (not just report it as
+  # already loaded/skip, which is what would happen without force)
+  result_forced <- import("praise", lib.loc = temp_lib, force = TRUE)
+  expect_true(result_forced$praise)
+  second_install_time <- file.info(file.path(temp_lib, "praise"))$mtime
+
+  expect_true(second_install_time > first_install_time)
+
+  if ("praise" %in% loadedNamespaces()) {
+    try(detach("package:praise", unload = TRUE), silent = TRUE)
+  }
+})
+
 test_that("import handles invalid GitHub repos gracefully", {
   skip_on_cran()
   skip_if_offline()

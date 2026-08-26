@@ -70,13 +70,13 @@ getNextDesign <- function(algorithm, X, Y) {
 }
 
 displayResults <- function(algorithm, X, Y) {
-    displayResultsTmp(algorithm, X[-nrow(X),], Y[-nrow(Y),]) # remove last NaN
+    displayResultsTmp(algorithm, X[-nrow(X),,drop=FALSE], Y[-nrow(Y),,drop=FALSE]) # remove last NaN
 }
 
 displayResultsTmp <- function(algorithm, X, Y) {
     algorithm$files <- "plot.png"
     png(file = algorithm$files, height = 600, width = 600)
-    red=(Y-min(Y))/(max(Y)-min(Y))
+    red = if (max(Y)>min(Y)) (Y-min(Y))/(max(Y)-min(Y)) else rep(0,length(Y))
     if (ncol(X)>1) {
         #pairs(X,col=rgb(r=red,g=0,b=1-red),Y=Y,d=nrow(X),panel=panel.vec)
         pairs(X,col=rgb(r=red,g=0,b=1-red),panel=panel.novec)

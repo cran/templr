@@ -1,4 +1,6 @@
 library(testthat)
+skip_on_cran()
+
 Brent.R = system.file("Brent.R", package="templr")
 
 # test read

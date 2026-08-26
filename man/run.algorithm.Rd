@@ -11,6 +11,7 @@ run.algorithm(
   output = NULL,
   options = NULL,
   work_dir = ".",
+  overwrite = TRUE,
   trace = function(...) cat(paste0(..., "\\n")),
   silent = FALSE,
   save_data = TRUE
@@ -28,6 +29,8 @@ run.algorithm(
 \item{options}{algorithm options to overload default ones}
 
 \item{work_dir}{working directory to run algorithm. will store output files, images, ..}
+
+\item{overwrite}{if FALSE, stop with an error when work_dir already contains saved data (.Rds) from a previous run instead of silently overwriting it (default: TRUE)}
 
 \item{trace}{display running info}
 
